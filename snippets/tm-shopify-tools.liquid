@@ -1,0 +1,179 @@
+{% # theme-check-disable %}
+{% unless theme.role == 'main' %}
+    <script src="{{ 'tm-shopify-tools.js' | asset_url }}" defer="defer"></script>
+    <link rel="stylesheet" href="{{ 'tm-shopify-tools.css' | asset_url }}">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    {%- liquid
+        assign trigger_text = settings.store | default: 'T&M'
+
+        comment
+            Theme selector
+        endcomment
+        assign preview = '?preview_theme_id='
+        assign store_url = shop.permanent_domain | prepend: 'https://'
+        assign local_host = "http://127.0.0.1:9292"
+        assign current_url = store_url | append: request.path | append: preview | append: theme.id
+        assign local_host_url = local_host | append: request.path | append: preview | append: theme.id
+
+        comment
+            Theme actions
+        endcomment
+        assign clear_cart = store_url | append: '/cart/clear' | append: preview | append: theme.id
+        assign customize_theme = store_url | append: '/admin/themes/' | append: theme.id | append: '/editor'
+        case template.name
+            when 'product'
+                assign customize_theme = customize_theme | append: '?previewPath=%2Fproducts%2F' | append: product.handle
+            when 'collection'
+                assign customize_theme = customize_theme | append: '?previewPath=%2Fcollections%2F' | append: collection.handle
+            when 'list-collections'
+                assign customize_theme = customize_theme | append: '?previewPath=%2Fcollections'
+            when 'page'
+                assign customize_theme = customize_theme | append: '?previewPath=%2Fpages%2F' | append: page.handle
+            when 'blog'
+                assign customize_theme = customize_theme | append: '?previewPath=%2Fblogs%2F' | append: blog.handle
+            when 'article'
+                assign customize_theme = customize_theme | append: '?previewPath=%2Fblogs%2F' | append: article.handle
+            when 'cart'
+                assign customize_theme = customize_theme | append: '?previewPath=%2Fcart'
+            when 'search'
+                assign customize_theme = customize_theme | append: '?previewPath=%2Fsearch'
+            when '404'
+                assign customize_theme = customize_theme | append: '?previewPath=%2F404'
+            when 'password'
+                assign customize_theme = customize_theme | append: '?previewPath=%2Fpassword'
+        endcase
+        assign edit_code = store_url | append: '/admin/themes/' | append: theme.id
+        assign edit_languages = store_url | append: '/admin/themes/' | append: theme.id | append: '/language'
+        
+        comment
+            Admin actions
+        endcomment
+        assign online_store = store_url | append: '/admin/themes/'
+        assign products_admin = store_url | append: '/admin/products'
+        assign collections_admin = store_url | append: '/admin/collections'
+        assign pages_admin = store_url | append: '/admin/pages'
+        assign articles_admin = store_url | append: '/admin/articles'
+        assign blogs_admin = store_url | append: '/admin/blogs'
+        assign apps = store_url | append: '/admin/apps' 
+        assign navigation = store_url | append: '/admin/menus'
+        assign store_settings = store_url | append: '/admin/settings' 
+        assign preferences = store_url | append: '/admin/online_store/preferences' 
+        
+        comment
+            Current content
+        endcomment
+        assign current_content_url = false
+        assign current_content_templates = 'product, collection, blog, article, page'
+        if current_content_templates contains template.name
+            case template.name
+                when 'product'
+                    assign current_content_url = store_url | append: '/admin/products/' | append: product.id
+                when 'collection'
+                    assign current_content_url = store_url | append: '/admin/collections/' | append: collection.id
+                when 'blog'
+                    assign current_content_url = store_url | append: '/admin/blogs/' | append: blog.id
+                when 'article'
+                    assign current_content_url = store_url | append: '/admin/articles/' | append: article.id
+                when 'page'
+                    assign current_content_url = store_url | append: '/admin/pages/' | append: page.id
+            endcase
+        endif
+    -%}
+
+    <div class="tmst" data-tmst>
+        <div class="tmst__trigger tmst-hover-effects" data-tmst-toggle>
+            <span>{{ trigger_text }}</span>
+        </div>
+        <div class="tmst__body">
+            <button class="tmst__close" data-tmst-close>
+                <svg fill="#FFF" width="24" height="24" clip-rule="evenodd" fill-rule="evenodd" stroke-linejoin="round" stroke-miterlimit="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m12 10.93 5.719-5.72c.146-.146.339-.219.531-.219.404 0 .75.324.75.749 0 .193-.073.385-.219.532l-5.72 5.719 5.719 5.719c.147.147.22.339.22.531 0 .427-.349.75-.75.75-.192 0-.385-.073-.531-.219l-5.719-5.719-5.719 5.719c-.146.146-.339.219-.531.219-.401 0-.75-.323-.75-.75 0-.192.073-.384.22-.531l5.719-5.719-5.72-5.719c-.146-.147-.219-.339-.219-.532 0-.425.346-.749.75-.749.192 0 .385.073.531.219z"/></svg>
+            </button>
+            <div class="tmst__header">
+                <h1>Thought and Mortar | Shopify Tools</h1>
+            </div>
+            <div class="tmst__main">
+                <div class="tmst__section">
+                    <div class="tmst__section-item">
+                        <h6>Theme</h6>
+                        <p>{{ theme.name }}</p>
+                    </div>
+                    <div class="tmst__section-item">
+                        <h6>Theme ID</h6>
+                        <p>{{ theme.id }}</p>
+                    </div>
+                    <div class="tmst__section-item">
+                        <h6>Page title</h6>
+                        <p>{{ page_title }}</p>
+                    </div>
+                    <div class="tmst__section-item">
+                        <h6>Request path</h6>
+                        <p>{{ request.path }}</p>
+                    </div>
+                    {% if request.design_mode %}
+                        <div class="tmst__section-item tmst__section-item--no-overflow">
+                            <h6>Current URL</h6>
+                            <p>{{ current_url }}</p>
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="tmst__section">
+                    <h6>Actions</h6>
+                    <div class="tmst__flex-wrapper">
+                        {% if request.design_mode %}
+                            <a class="tmst__button tmst-hover-effects" href="{{ edit_code }}" target="_blank">Open URL in new tab</a>    
+                        {% else %}
+                            <button data-current-url data-url-copy class="tmst__button tmst-hover-effects tmst__copy-link" data-url="{{ current_url }}">Copy URL</button>
+                            <button data-url-copy class="tmst__button tmst-hover-effects tmst__copy-link" data-url="{{ local_host_url }}">Copy Localhost URL</button>
+                        {% endif %}
+                        <a data-customize-theme class="tmst__button tmst-hover-effects" href="{{ customize_theme }}">Customize theme</a>
+                        <a class="tmst__button tmst-hover-effects" href="{{ edit_code }}">Edit code</a>
+                        <a class="tmst__button tmst-hover-effects" href="{{ edit_languages }}">Edit languages</a>
+                        <a class="tmst__button tmst-hover-effects" href="{{ clear_cart }}">Clear cart</a>
+                        <button data-preview-bar-toggle class="tmst__button tmst-hover-effects">Toggle preview bar</button>
+                    </div>
+                </div>
+                <div class="tmst__section">
+                    <h6>Links</h6>
+                    <div class="tmst__flex-wrapper">
+                        <a class="tmst__button tmst-hover-effects" href="{{ online_store }}">Online Store</a>
+                        <a class="tmst__button tmst-hover-effects" href="{{ products_admin }}">Products</a>
+                        <a class="tmst__button tmst-hover-effects" href="{{ collections_admin }}">Collections</a>
+                        <a class="tmst__button tmst-hover-effects" href="{{ pages_admin }}">Pages</a>
+                        <a class="tmst__button tmst-hover-effects" href="{{ articles_admin }}">Articles</a>
+                        <a class="tmst__button tmst-hover-effects" href="{{ blogs_admin }}">Blogs</a>
+                        <a class="tmst__button tmst-hover-effects" href="{{ apps }}">Apps</a>
+                        <a class="tmst__button tmst-hover-effects" href="{{ navigation }}">Navigation</a>
+                        <a class="tmst__button tmst-hover-effects" href="{{ store_settings }}">Store settings</a>
+                        <a class="tmst__button tmst-hover-effects" href="{{ preferences }}">Preferences</a>
+                        {% if current_content_url %}
+                            <a class="tmst__button tmst-hover-effects" href="{{ current_content_url }}">Edit current {{ template.name | strip }}</a>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="tmst__footer tmst__section tmst__flex-wrapper">
+                    <div class="tmst__section-item--20">
+                        <h6>Template name</h6>
+                        <p>{{ template.name }}</p>
+                    </div>
+                    <div class="tmst__section-item--20">
+                        <h6>Template suffix</h6>
+                        <p>{{ template.suffix | default: 'N/A' }}</p>
+                    </div>
+                    <div class="tmst__section-item--20">
+                        <h6>Shop currency</h6>
+                        <p>{{ shop.currency }}</p>
+                    </div>
+                    <div class="tmst__section-item--20">
+                        <h6>Cart ISO code</h6>
+                        <p>{{ cart.currency.iso_code }}</p>
+                    </div>
+                    <div class="tmst__section-item--20">
+                        <h6>Shop locale</h6>
+                        <p>{{ shop.locale }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endunless %}
